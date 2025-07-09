@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personalized Aesthetic Timer</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: url('pexels-veeterzy-39811.jpg') no-repeat center center fixed;
+      background-size: cover;
+      position: relative;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      text-shadow: 0 0 8px rgba(0,0,0,0.7);
+      padding: 20px;
+      box-sizing: border-box;
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 0;
+    }
+
+    .timer {
+      font-size: 7.5rem;
+      transition: transform 0.3s ease, text-shadow 0.4s ease;
+      z-index: 1;
+    }
+
+    .timer.running {
+      transform: scale(1.1);
+    }
+
+    .timer.glow {
+      animation: glowPulse 2s infinite ease-in-out;
+    }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff;
+        opacity: 1;
+      }
+      50% {
+        text-shadow: 0 0 30px #fff, 0 0 60px #fff;
+        opacity: 0.7;
+      }
+    }
+
+    .controls, .custom-time, .presets {
+      margin-top: 25px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    button {
+      padding: 15px 35px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      border: 2px solid rgba(255,255,255,0.6);
+      background: transparent;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s, transform 0.2s;
+      backdrop-filter: blur(5px);
+      color: #fff;
+      z-index: 1;
+    }
+
+    button:hover {
+      background: rgba(255,255,255,0.4);
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    .icon-button {
+      font-size: 1.275rem;
+      padding: 15px 35px;
+    }
+
+    .presets button {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      padding: 0;
+      font-size: 1.3rem;
+    }
+
+    .custom-time button {
+      padding: 15px 20px;
+    }
+
+    .custom-time input {
+      width: 110px;
+      padding: 10px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+      background: rgba(255,255,255,0.6);
+      color: #000;
+    }
+
+    .spotify-panel {
+      position: fixed;
+      top: 20px;
+      right: -55%;
+      width: 40%;
+      height: 352px;
+      transition: right 0.4s ease;
+      z-index: 99;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .spotify-panel.open {
+      right: calc(20px - 24%);
+    }
+
+    .spotify-panel iframe {
+      width: 40%;
+      height: 100%;
+      border-radius: 12px;
+    }
+
+    .music-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-size: 2.2rem;
+      color: white;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 100;
+      padding: 0;
+    }
+
+    .music-toggle:hover {
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="timer" id="timer">05:00</div>
+
+  <div class="controls">
+    <button class="icon-button" onclick="startTimer()">▶</button>
+    <button class="icon-button" onclick="pauseTimer()">⏸</button>
+    <button class="icon-button" onclick="resetTimer()">Reset</button>
+    <button onclick="add30Seconds()">+30 sec</button>
+  </div>
+
+  <div class="custom-time">
+    <button onclick="setCustomTime()">Set</button>
+    <input type="text" id="customTime" placeholder="MM:SS" />
+  </div>
+
+  <div class="presets">
+    <button onclick="setTime(1)">1</button>
+    <button onclick="setTime(2)">2</button>
+    <button onclick="setTime(3)">3</button>
+    <button onclick="setTime(4)">4</button>
+    <button onclick="setTime(5)">5</button>
+    <button onclick="setTime(6)">6</button>
+    <button onclick="setTime(7)">7</button>
+    <button onclick="setTime(8)">8</button>
+    <button onclick="setTime(9)">9</button>
+    <button onclick="setTime(10)">10</button>
+  </div>
+
+  <!-- Spotify Slide Panel -->
+  <div class="spotify-panel" id="spotifyPanel">
+    <iframe style="border-radius:12px"
+      src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS?utm_source=generator&theme=0"
+      width="40%" height="352" frameBorder="0" allowfullscreen=""
+      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+      loading="lazy">
+    </iframe>
+  </div>
+
+  <!-- Minimal Music Note Icon Toggle -->
+  <button class="music-toggle" onclick="toggleSpotify()">
+    ♩
+  </button>
+
+  <audio id="endSound">
+    <source src="Computer_Magic-Microsift-1901299923.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    let duration = 5 * 60;
+    let remainingTime = duration;
+    let timerInterval = null;
+    let playingSound = false;
+    const timerDisplay = document.getElementById('timer');
+    const endSound = document.getElementById('endSound');
+
+    function updateDisplay() {
+      const minutes = Math.floor(remainingTime / 60).toString().padStart(2, '0');
+      const seconds = (remainingTime % 60).toString().padStart(2, '0');
+      timerDisplay.textContent = `${minutes}:${seconds}`;
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+      timerDisplay.classList.add('running');
+      timerInterval = setInterval(() => {
+        if (remainingTime > 0) {
+          remainingTime--;
+          updateDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerDisplay.classList.remove('running');
+          timerDisplay.classList.add('glow');
+          playSoundThreeTimes();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      timerDisplay.classList.remove('running');
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      remainingTime = duration;
+      updateDisplay();
+      timerDisplay.classList.remove('running', 'glow');
+      stopSound();
+    }
+
+    function setTime(minutes) {
+      pauseTimer();
+      duration = minutes * 60;
+      remainingTime = duration;
+      updateDisplay();
+      timerDisplay.classList.remove('glow');
+      stopSound();
+    }
+
+    function setCustomTime() {
+      const input = document.getElementById('customTime').value.trim();
+      const match = input.match(/^(\d{1,2}):(\d{2})$/);
+      if (match) {
+        let min = parseInt(match[1]);
+        let sec = parseInt(match[2]);
+        if (!isNaN(min) && !isNaN(sec) && sec < 60) {
+          duration = (min * 60) + sec;
+          remainingTime = duration;
+          pauseTimer();
+          updateDisplay();
+          timerDisplay.classList.remove('glow');
+          stopSound();
+        } else {
+          alert("Invalid time format.");
+        }
+      } else {
+        alert("Please enter time in MM:SS format.");
+      }
+    }
+
+    function add30Seconds() {
+      remainingTime += 30;
+      updateDisplay();
+    }
+
+    function playSoundThreeTimes() {
+      let count = 0;
+      playingSound = true;
+      endSound.volume = 1.0;
+      function playNext() {
+        if (count < 3 && playingSound) {
+          endSound.currentTime = 0;
+          endSound.play()
+            .then(() => {
+              count++;
+            })
+            .catch(err => console.log("Audio play prevented:", err));
+          endSound.onended = () => {
+            playNext();
+          };
+        }
+      }
+      playNext();
+    }
+
+    function stopSound() {
+      playingSound = false;
+      endSound.pause();
+      endSound.currentTime = 0;
+    }
+
+    function toggleSpotify() {
+      const panel = document.getElementById('spotifyPanel');
+      panel.classList.toggle('open');
+    }
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>
