@@ -275,6 +275,10 @@
   </audio>
 
   <script>
+    document.body.addEventListener('touchstart', () => {
+    const unlock = document.getElementById('endSound');
+    unlock.play().catch(() => {});
+ }, { once: true });
     let duration = 5 * 60;
     let remainingTime = duration;
     let timerInterval = null;
