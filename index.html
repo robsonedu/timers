@@ -214,6 +214,13 @@
     flex-wrap: wrap;
   }
 }
+
+@media (max-width: 600px) {
+  .spotify-panel,
+  .music-toggle {
+    display: none;
+  }
+}
   </style>
 </head>
 <body>
@@ -222,7 +229,7 @@
 
   <div class="controls">
     <button class="icon-button" onclick="startTimer()">▶</button>
-    <button class="icon-button" onclick="pauseTimer()">⏸</button>
+    <button class="icon-button" onclick="pauseTimer()">‖</button>
     <button class="icon-button" onclick="resetTimer()">Reset</button>
     <button onclick="add30Seconds()">+30 sec</button>
   </div>
