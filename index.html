@@ -269,19 +269,15 @@
 
   <button class="music-toggle" onclick="toggleSpotify()">♩</button>
 
-  <audio id="unlockSound">
-  <source src="data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA" type="audio/mpeg">
-  </audio>
-
-  <audio id="endSound">
+ <audio id="endSound">
   <source src="ac-bel-105874.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
-  </audio>
+ </audio>
 
   <script>
     document.body.addEventListener('touchstart', () => {
-    const silentUnlock = document.getElementById('unlockSound');
-    silentUnlock.play().catch(() => {});
+    const unlock = document.getElementById('endSound');
+    unlock.play().catch(() => {});
     }, { once: true });
 
     let duration = 5 * 60;
